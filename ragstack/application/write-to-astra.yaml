@@ -1,0 +1,45 @@
+name: "Write to AstraDB vector database"
+topics:
+  - name: "${globals.chunksTopic}"
+    creation-mode: create-if-not-exists
+    deletion-mode: delete
+assets:
+  - name: "keyspace-chat"
+    asset-type: "astra-keyspace"
+    creation-mode: create-if-not-exists
+    config:
+      keyspace: "${globals.vectorKeyspace}"
+      datasource: "AstraDatasource"
+  - name: "vector-table-chat"
+    asset-type: "cassandra-table"
+    creation-mode: create-if-not-exists
+    config:
+      table-name: "${globals.vectorTable}"
+      keyspace: "${globals.vectorKeyspace}"
+      datasource: "AstraDatasource"
+      create-statements:
+        - >
+          CREATE TABLE IF NOT EXISTS ${globals.vectorKeyspace}.${globals.vectorTable} (  
+            filename TEXT,
+            chunk_id int,
+            num_tokens int,
+            language TEXT,  
+            text TEXT,
+            embeddings_vector VECTOR<FLOAT, 1536>,
+            PRIMARY KEY (filename, chunk_id)
+            );
+        - >
+          CREATE CUSTOM INDEX IF NOT EXISTS ${globals.vectorIndex} 
+          ON ${globals.vectorKeyspace}.${globals.vectorTable}(embeddings_vector) USING 'StorageAttachedIndex';
+errors:
+  on-failure: "skip"
+pipeline:
+  - name: "Write to AstraDB"
+    type: "vector-db-sink"
+    input: "${globals.chunksTopic}"
+    configuration:
+      datasource: "AstraVector"
+      table-name: "{{globals.vectorTable}}"
+      keyspace: "{{globals.vectorKeyspace}}"
+      table: "${globals.vectorKeyspace}.${globals.vectorTable}"
+      mapping: "filename=value.filename, chunk_id=value.chunk_id, language=value.language, text=value.text, embeddings_vector=value.embeddings_vector, num_tokens=value.chunk_num_tokens"

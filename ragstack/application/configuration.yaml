@@ -1,0 +1,43 @@
+configuration:
+  defaults:
+    globals:
+      assistantType: "RAGStack project"
+      vectorKeyspace: "ragstack"
+      vectorTable: "cassiodocs"
+      chatTable: "cassiohistory"
+      vectorIndex: "annragbot"
+      chunksTopic: "ragbotjam-chunks"
+      questionsTopic: "ragbotjam-questions"
+      answersTopic: "ragbotjam-answers"
+      chatModelName: "gpt-4"
+      logTopic: "ragbotjam-logs"
+      seedUrls: 
+        - "https://cassio.org/"
+      allowedUrls: 
+        - "https://cassio.org/"
+      forbiddenPaths: []
+      vectorDb: ""
+  resources:
+  - type: "open-ai-configuration"
+    name: "OpenAI configuration"
+    configuration:
+      access-key: "${secrets.open-ai.access-key}"
+      provider: "openai"
+  - type: "datasource"
+    name: "AstraDatasource"
+    configuration:
+        service: "astra"
+        clientId: "${secrets.astra.clientId}"
+        secret: "${secrets.astra.secret}"
+        token: "${secrets.astra.token}"
+        database: "${secrets.astra.database}"
+        environment: "${secrets.astra.environment}"
+  - type: "vector-database"
+    name: "AstraVector"
+    configuration:
+        service: "astra"
+        clientId: "${secrets.astra.clientId}"
+        secret: "${secrets.astra.secret}"
+        token: "${secrets.astra.token}"
+        database: "${secrets.astra.database}"
+        environment: "${secrets.astra.environment}"

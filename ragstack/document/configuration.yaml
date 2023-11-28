@@ -1,0 +1,30 @@
+configuration:
+  resources:
+    - type: "vector-database"
+      name: "AstraDatasource"
+      configuration:
+        service: "astra"
+        clientId: "token"
+        secret: "{{ secrets.astra.token }}"
+        token: "{{ secrets.astra.token }}"
+        database: "{{ secrets.astra.database }}"
+        environment: "PROD"
+        password: "{{ secrets.astra.token }}"
+    - type: "datasource"
+      id: "database"
+      name: "AstraLangChainDatasource"
+      configuration:
+        service: "astra"
+        clientId: "token"
+        secret: "{{secrets.astra-langchain.token}}"
+        database: "{{secrets.astra-langchain.database}}"
+        database-id: "{{secrets.astra-langchain.database-id}}"
+        token: "{{secrets.astra-langchain.token}}"
+        environment: "PROD"
+    - type: "open-ai-configuration"
+      name: "OpenAI configuration"
+      id: "openai"
+      configuration:
+        url: "{{secrets.open-ai.url}}"
+        access-key: "{{secrets.open-ai.access-key}}"
+        provider: "openai"

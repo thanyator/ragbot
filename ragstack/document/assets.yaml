@@ -1,0 +1,31 @@
+assets:
+  - name: "langstream-keyspace"
+    asset-type: "astra-keyspace"
+    creation-mode: create-if-not-exists
+    config:
+      keyspace: "{{secrets.astra.keyspace}}"
+      datasource: "AstraDatasource"
+  - name: "langstream-docs-table"
+    asset-type: "cassandra-table"
+    creation-mode: create-if-not-exists
+    config:
+      table-name: "{{secrets.astra.table}}"
+      keyspace: "{{secrets.astra.keyspace}}"
+      datasource: "AstraDatasource"
+      create-statements:
+        - |
+          CREATE TABLE IF NOT EXISTS "{{secrets.astra.keyspace}}"."{{secrets.astra.table}}" (
+          row_id text PRIMARY KEY,
+          filename TEXT,
+          chunk_text_length TEXT,
+          chunk_num_tokens TEXT,
+          chunk_id TEXT,
+          attributes_blob text,
+          body_blob TEXT,
+          metadata_s map<text, text>,
+          name TEXT,
+          product_name TEXT,
+          product_version TEXT,
+          vector VECTOR<FLOAT, 1536>);
+        - |
+          CREATE CUSTOM INDEX IF NOT EXISTS {{secrets.astra.table}}_ann_index ON {{secrets.astra.keyspace}}.{{secrets.astra.table}}(vector) USING 'StorageAttachedIndex';
